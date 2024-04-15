@@ -1,4 +1,4 @@
-import { createUuid, UUID, isUuid } from "../../utilities/uuid";
+import { UUID, createUuid, isUuid } from "../../utilities/uuid";
 
 export type PurchaseOrder = { id: UUID };
 export type createPurchaseOrder = () => PurchaseOrder;

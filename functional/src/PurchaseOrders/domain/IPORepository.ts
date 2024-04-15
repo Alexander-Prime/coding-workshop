@@ -1,4 +1,6 @@
-import { Option, Result } from "oxide.ts";
+import { Result } from "neverthrow";
+
+import { Option } from "../../utilities/option";
 import { UUID } from "../../utilities/uuid";
 import { PurchaseOrder } from "./PurchaseOrder";
 

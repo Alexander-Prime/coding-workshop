@@ -1,4 +1,6 @@
-import { None, Ok, Some, Option } from "oxide.ts";
+import { ok } from "neverthrow";
+
+import { None, Option, Some } from "../../utilities/option";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
 import { PurchaseOrder } from "./PurchaseOrder";
@@ -7,11 +9,24 @@ class PORepository implements IPORepository {
   purchaseOrders: PurchaseOrder[] = [];
   async save(po: PurchaseOrder) {
     this.purchaseOrders.push(po);
-    return Ok(undefined);
+    return ok(undefined);
   }
   async fetch(id: UUID) {
     const po = this.purchaseOrders.find((p) => p.id === id);
-    return po ? Ok(Some(po)) : Ok(None);
+    return po ? ok(Some(po)) : ok(None);
   }
 }
-export const constructPORepository = () => new PORepository();
+export const _constructPORepository = () => new PORepository();
+
+export const constructPORepository = (): IPORepository => {
+  const purchaseOrders: PurchaseOrder[] = [];
+  return {
+    save: async (po: PurchaseOrder) => {
+      purchaseOrders.push(po);
+      return ok(undefined);
+    },
+    fetch: async (id: UUID) => {
+      return ok(Option.nonNull(purchaseOrders.find((p) => p.id === id)));
+    },
+  };
+};
