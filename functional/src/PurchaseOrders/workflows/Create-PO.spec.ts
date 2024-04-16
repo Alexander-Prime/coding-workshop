@@ -6,7 +6,7 @@ import { None, Some } from "../../utilities/option";
 import { isUuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
 import { constructPORepository } from "../domain/PORepistory";
-import { isPurchaseOrder } from "../domain/PurchaseOrder";
+import { PurchaseOrder } from "../domain/PurchaseOrder";
 import { createPO } from "./Create-PO";
 
 describe("Create PO Workflow", () => {
@@ -34,8 +34,8 @@ describe("Create PO Workflow", () => {
       .with(err(P.select()), (err) => `Error: ${err}`)
       .otherwise(constant("Unknown variant"));
 
-    expect(isPurchaseOrder(output)).toBeTruthy();
-    if (isPurchaseOrder(output)) {
+    expect(PurchaseOrder.parse(output)).toBeTruthy();
+    if (PurchaseOrder.parse(output)) {
       expect(id).toEqual(output.id);
     }
   });
