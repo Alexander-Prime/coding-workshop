@@ -4,12 +4,21 @@ import { P, match } from "ts-pattern";
 import { NonEmptyArray } from "../../utilities/NonEmptyArray";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "./LineItem";
+import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
 
-export type PurchaseOrder = { id: Uuid; lineItems: NonEmptyArray<LineItem> };
+export type PurchaseOrder = {
+  id: Uuid;
+  poNumber: PurchaseOrderNumber;
+  lineItems: NonEmptyArray<LineItem>;
+};
 
 export const PurchaseOrder = {
-  new: (lineItems: NonEmptyArray<LineItem>): PurchaseOrder => ({
+  new: (
+    poNumber: PurchaseOrderNumber,
+    lineItems: NonEmptyArray<LineItem>
+  ): PurchaseOrder => ({
     id: Uuid.v4(),
+    poNumber,
     lineItems,
   }),
 

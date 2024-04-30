@@ -1,8 +1,8 @@
-import { err as Err, ok as Ok } from "neverthrow";
+import { err as Err, ok as Ok, ResultAsync } from "neverthrow";
 import * as R from "remeda";
 import { P, match } from "ts-pattern";
 
-import { None, Some } from "../../utilities/option";
+import { None, Option, Some } from "../../utilities/option";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
@@ -17,7 +17,7 @@ describe("Create PO Workflow", () => {
 
   it("returns a uuid", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
-    const poResult = await createPO({ PORepo: repo })([LineItem.mock()]);
+    const poResult = await createPO({ PORepo: repo })("syn", [LineItem.mock()]);
     const id = poResult._unsafeUnwrap();
 
     expect(poResult).toMatchObject(Ok({}));
@@ -26,7 +26,7 @@ describe("Create PO Workflow", () => {
 
   it("saves a purchase order to a repository", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
-    const result = await createPO({ PORepo: repo })([LineItem.mock()]);
+    const result = await createPO({ PORepo: repo })("syn", [LineItem.mock()]);
     const id = result._unsafeUnwrap();
     const poRes = await repo.fetch(id);
     const output = match(poRes)
@@ -40,5 +40,29 @@ describe("Create PO Workflow", () => {
     if (PurchaseOrder.check(output)) {
       expect(output.id).toEqual(id);
     }
+  });
+
+  it("creates purchase orders with sequential PO numbers", async () => {
+    const repo = MemoryPurchaseOrderRepo.new();
+
+    const ids = await ResultAsync.combine([
+      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+    ]).unwrapOr([] as Uuid[]);
+
+    const results = await ResultAsync.combine(
+      ids.map((id) => repo.fetch(id))
+    ).unwrapOr([] as Option<PurchaseOrder>[]);
+
+    expect(results.map((r) => r.unwrap().poNumber)).toEqual([
+      "syn-000001",
+      "syn-000002",
+      "syn-000003",
+      "syn-000004",
+      "syn-000005",
+    ]);
   });
 });
