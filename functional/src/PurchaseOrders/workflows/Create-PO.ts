@@ -11,7 +11,7 @@ export const createPO =
   (
     prefix: string,
     lineItems: NonEmptyArray<LineItem>
-  ): ResultAsync<Uuid, Error> =>
-    PORepo.nextPoNumber(prefix)
-      .map(() => PurchaseOrder.new({ prefix }, lineItems))
-      .andThen((po) => PORepo.save(po).map(() => po.id));
+  ): ResultAsync<Uuid, Error> => {
+    const po = PurchaseOrder.new({ prefix }, lineItems);
+    return PORepo.save(po).map(() => po.id);
+  };

@@ -49,9 +49,9 @@ describe("Create PO Workflow", () => {
       createPO({ PORepo: repo })("syn", [LineItem.mock()]),
     ]).unwrapOr([] as Uuid[]);
 
-    const results = await ResultAsync.combine(
-      ids.map((id) => repo.fetch(id))
-    ).unwrapOr([] as Option<PurchaseOrder>[]);
+    const results = await ResultAsync.combine(ids.map(repo.fetch)).unwrapOr(
+      [] as Option<PurchaseOrder>[]
+    );
 
     expect(results.map((r) => r.unwrap().poNumber)).toEqual([None]);
   });

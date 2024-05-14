@@ -8,7 +8,7 @@ import { PurchaseOrderRepo } from "./PurchaseOrderRepo";
 
 export const MemoryPurchaseOrderRepo = {
   new: (): PurchaseOrderRepo => {
-    const purchaseOrders: PurchaseOrder[] = [];
+    let purchaseOrders: PurchaseOrder[] = [];
     const counters: Record<string, number> = {};
 
     return {
@@ -30,6 +30,7 @@ export const MemoryPurchaseOrderRepo = {
       },
 
       save: (po) => {
+        purchaseOrders = purchaseOrders.filter(({ id }) => id !== po.id);
         purchaseOrders.push(po);
         return OkAsync(null);
       },
