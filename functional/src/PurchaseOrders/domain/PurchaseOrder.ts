@@ -10,6 +10,7 @@ export type PurchaseOrder = {
   id: Uuid;
   poNumber: PurchaseOrderNumber;
   lineItems: NonEmptyArray<LineItem>;
+  isSubmitted: boolean;
 };
 
 export const PurchaseOrder = {
@@ -20,6 +21,7 @@ export const PurchaseOrder = {
     id: Uuid.v4(),
     poNumber,
     lineItems,
+    isSubmitted: false,
   }),
 
   parse: (s: unknown) => (PurchaseOrder.check(s) ? Ok(s) : Err(new Error())),
