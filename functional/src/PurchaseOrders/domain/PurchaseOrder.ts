@@ -1,25 +1,29 @@
 import { err as Err, ok as Ok } from "neverthrow";
 import { P, match } from "ts-pattern";
 
+import { None, Option } from "../../utilities/option";
+
 import { NonEmptyArray } from "../../utilities/NonEmptyArray";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "./LineItem";
 import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
 
+export type Org = {
+  prefix: string;
+};
+
 export type PurchaseOrder = {
   id: Uuid;
-  poNumber: PurchaseOrderNumber;
+  poNumber: Option<PurchaseOrderNumber>;
   lineItems: NonEmptyArray<LineItem>;
   isSubmitted: boolean;
+  org: Org;
 };
 
 export const PurchaseOrder = {
-  new: (
-    poNumber: PurchaseOrderNumber,
-    lineItems: NonEmptyArray<LineItem>
-  ): PurchaseOrder => ({
+  new: (org: Org, lineItems: NonEmptyArray<LineItem>): PurchaseOrder => ({
     id: Uuid.v4(),
-    poNumber,
+    poNumber: None,
     lineItems,
     isSubmitted: false,
   }),

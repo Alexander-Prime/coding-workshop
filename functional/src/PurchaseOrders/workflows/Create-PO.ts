@@ -13,5 +13,5 @@ export const createPO =
     lineItems: NonEmptyArray<LineItem>
   ): ResultAsync<Uuid, Error> =>
     PORepo.nextPoNumber(prefix)
-      .map((poNum) => PurchaseOrder.new(poNum, lineItems))
+      .map(() => PurchaseOrder.new({ prefix }, lineItems))
       .andThen((po) => PORepo.save(po).map(() => po.id));

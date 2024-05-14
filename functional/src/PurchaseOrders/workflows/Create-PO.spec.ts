@@ -42,14 +42,10 @@ describe("Create PO Workflow", () => {
     }
   });
 
-  it("creates purchase orders with sequential PO numbers", async () => {
+  it("creates purchase orders without PO numbers", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
 
     const ids = await ResultAsync.combine([
-      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
-      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
-      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
-      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
       createPO({ PORepo: repo })("syn", [LineItem.mock()]),
     ]).unwrapOr([] as Uuid[]);
 
@@ -57,12 +53,6 @@ describe("Create PO Workflow", () => {
       ids.map((id) => repo.fetch(id))
     ).unwrapOr([] as Option<PurchaseOrder>[]);
 
-    expect(results.map((r) => r.unwrap().poNumber)).toEqual([
-      "syn-000001",
-      "syn-000002",
-      "syn-000003",
-      "syn-000004",
-      "syn-000005",
-    ]);
+    expect(results.map((r) => r.unwrap().poNumber)).toEqual([None]);
   });
 });
