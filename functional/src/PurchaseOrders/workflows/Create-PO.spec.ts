@@ -7,6 +7,7 @@ import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
 import { PurchaseOrder } from "../domain/PurchaseOrder";
+import { Purchaser } from "../domain/Purchaser";
 import { createPO } from "./Create-PO";
 
 describe("Create PO Workflow", () => {
@@ -17,7 +18,10 @@ describe("Create PO Workflow", () => {
 
   it("returns a uuid", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
-    const poResult = await createPO({ PORepo: repo })("syn", [LineItem.mock()]);
+    const purchaser = Purchaser.new({ namespace: "syn" });
+    const poResult = await createPO({ PORepo: repo })(purchaser, [
+      LineItem.mock(),
+    ]);
     const id = poResult._unsafeUnwrap();
 
     expect(poResult).toMatchObject(Ok({}));
@@ -26,7 +30,10 @@ describe("Create PO Workflow", () => {
 
   it("saves a purchase order to a repository", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
-    const result = await createPO({ PORepo: repo })("syn", [LineItem.mock()]);
+    const purchaser = Purchaser.new({ namespace: "syn" });
+    const result = await createPO({ PORepo: repo })(purchaser, [
+      LineItem.mock(),
+    ]);
     const id = result._unsafeUnwrap();
     const poRes = await repo.fetch(id);
     const output = match(poRes)
@@ -44,9 +51,10 @@ describe("Create PO Workflow", () => {
 
   it("creates purchase orders without PO numbers", async () => {
     const repo = MemoryPurchaseOrderRepo.new();
+    const purchaser = Purchaser.new({ namespace: "syn" });
 
     const ids = await ResultAsync.combine([
-      createPO({ PORepo: repo })("syn", [LineItem.mock()]),
+      createPO({ PORepo: repo })(purchaser, [LineItem.mock()]),
     ]).unwrapOr([] as Uuid[]);
 
     const results = await ResultAsync.combine(ids.map(repo.fetch)).unwrapOr(

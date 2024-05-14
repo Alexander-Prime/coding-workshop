@@ -12,18 +12,18 @@ export const MemoryPurchaseOrderRepo = {
     const counters: Record<string, number> = {};
 
     return {
-      nextPoNumber: (prefix) => {
+      nextPoNumber: (org) => {
         // Ensure the prefix can generate a legal PO number before incrementing
-        if (!PurchaseOrderNumber.check(`${prefix}-000001`)) {
+        if (!PurchaseOrderNumber.check(`${org.namespace}-000001`)) {
           return ErrAsync(
-            new Error(`"${prefix}" is not a valid purchase order prefix`)
+            new Error(`"${org.namespace}" is not a valid purchase order prefix`)
           );
         }
 
-        counters[prefix] = (counters[prefix] ?? 0) + 1;
+        counters[org.namespace] = (counters[org.namespace] ?? 0) + 1;
 
         return OkAsync(
-          `${prefix}-${counters[prefix]
+          `${org.namespace}-${counters[org.namespace]
             .toFixed()
             .padStart(6, "0")}` as PurchaseOrderNumber
         );

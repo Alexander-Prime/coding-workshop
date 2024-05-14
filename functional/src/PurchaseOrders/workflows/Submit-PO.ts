@@ -19,7 +19,10 @@ export const submitPO =
           : ErrAsync(new Error(`Purchase order was already submitted: ${id}`))
       )
       .andThen((po) =>
-        ResultAsync.combine([OkAsync(po), PORepo.nextPoNumber(po.org.prefix)])
+        ResultAsync.combine([
+          OkAsync(po),
+          PORepo.nextPoNumber(po.purchaser.org),
+        ])
       )
       .map(([po, poNumber]) => PurchaseOrder.submit(po, poNumber))
       .andThen(PORepo.save);

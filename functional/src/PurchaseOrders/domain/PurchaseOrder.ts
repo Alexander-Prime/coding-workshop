@@ -7,17 +7,14 @@ import { NonEmptyArray } from "../../utilities/NonEmptyArray";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "./LineItem";
 import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
-
-export type Org = {
-  prefix: string;
-};
+import { Purchaser } from "./Purchaser";
 
 export type PurchaseOrder = {
   id: Uuid;
   poNumber: Option<PurchaseOrderNumber>;
   lineItems: NonEmptyArray<LineItem>;
   isSubmitted: boolean;
-  org: Org;
+  purchaser: Purchaser;
 };
 
 export type DraftPurchaseOrder = PurchaseOrder & {
@@ -31,12 +28,15 @@ export type PendingPurchaseOrder = PurchaseOrder & {
 };
 
 export const PurchaseOrder = {
-  new: (org: Org, lineItems: NonEmptyArray<LineItem>): PurchaseOrder => ({
+  new: (
+    purchaser: Purchaser,
+    lineItems: NonEmptyArray<LineItem>
+  ): PurchaseOrder => ({
     id: Uuid.v4(),
     poNumber: None,
     lineItems,
     isSubmitted: false,
-    org,
+    purchaser,
   }),
 
   parse: (s: unknown) => (PurchaseOrder.check(s) ? Ok(s) : Err(new Error())),

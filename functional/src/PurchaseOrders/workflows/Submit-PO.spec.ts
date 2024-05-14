@@ -4,6 +4,7 @@ import { reverse } from "remeda";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
+import { Purchaser } from "../domain/Purchaser";
 import { createPO } from "./Create-PO";
 import { submitPO } from "./Submit-PO";
 
@@ -11,13 +12,15 @@ describe("Submit PO workflow", () => {
   it("assigns purchase order numbers sequentially", async () => {
     const PORepo = MemoryPurchaseOrderRepo.new();
 
+    const purchaser = Purchaser.new({ namespace: "syn" });
+
     const ids = reverse(
       await ResultAsync.combine([
-        createPO({ PORepo })("syn", [LineItem.mock()]),
-        createPO({ PORepo })("syn", [LineItem.mock()]),
-        createPO({ PORepo })("syn", [LineItem.mock()]),
-        createPO({ PORepo })("syn", [LineItem.mock()]),
-        createPO({ PORepo })("syn", [LineItem.mock()]),
+        createPO({ PORepo })(purchaser, [LineItem.mock()]),
+        createPO({ PORepo })(purchaser, [LineItem.mock()]),
+        createPO({ PORepo })(purchaser, [LineItem.mock()]),
+        createPO({ PORepo })(purchaser, [LineItem.mock()]),
+        createPO({ PORepo })(purchaser, [LineItem.mock()]),
       ]).unwrapOr([] as Uuid[])
     );
 
@@ -38,9 +41,10 @@ describe("Submit PO workflow", () => {
 
   it("fails if the purchase order has already been submitted", async () => {
     const PORepo = MemoryPurchaseOrderRepo.new();
+    const purchaser = Purchaser.new({ namespace: "syn" });
 
     const id = (
-      await createPO({ PORepo })("syn", [LineItem.mock()])
+      await createPO({ PORepo })(purchaser, [LineItem.mock()])
     )._unsafeUnwrap();
 
     const firstResult = await submitPO({ PORepo })(id);
