@@ -22,11 +22,13 @@ export type PurchaseOrder = {
 export type DraftPurchaseOrder = PurchaseOrder & {
   poNumber: None;
   isSubmitted: false;
+  reviewedBy: None;
 };
 
 export type PendingPurchaseOrder = PurchaseOrder & {
   poNumber: Some<PurchaseOrderNumber>;
   isSubmitted: true;
+  reviewedBy: None;
 };
 
 export type ApprovedPurchaseOrder = PurchaseOrder & {
@@ -58,6 +60,9 @@ export const PurchaseOrder = {
   isDraft: (po: PurchaseOrder): po is DraftPurchaseOrder =>
     po.poNumber.isNone() && !po.isSubmitted,
 
+  isPending: (po: PurchaseOrder): po is PendingPurchaseOrder =>
+    po.poNumber.isSome() && po.isSubmitted && po.reviewedBy.isNone(),
+
   submit: (
     po: DraftPurchaseOrder,
     poNumber: PurchaseOrderNumber
@@ -67,11 +72,10 @@ export const PurchaseOrder = {
     isSubmitted: true,
   }),
 
-  approve: (
-    po: PendingPurchaseOrder,
-    reviewer: Reviewer
-  ): ApprovedPurchaseOrder => ({
-    ...po,
-    reviewedBy: Some(reviewer),
-  }),
+  approve:
+    (reviewer: Reviewer) =>
+    (po: PendingPurchaseOrder): ApprovedPurchaseOrder => ({
+      ...po,
+      reviewedBy: Some(reviewer),
+    }),
 };
