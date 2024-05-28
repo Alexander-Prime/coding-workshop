@@ -1,5 +1,6 @@
 import { errAsync as ErrAsync, okAsync as OkAsync } from "neverthrow";
 import * as R from "remeda";
+import { P, isMatching } from "ts-pattern";
 
 import { Option } from "../../utilities/option";
 import { PurchaseOrder } from "./PurchaseOrder";
@@ -42,6 +43,9 @@ export const MemoryPurchaseOrderRepo = {
           Option.nonNull,
           OkAsync
         ),
+
+      list: <T extends PurchaseOrder>(pattern = {} as P.Pattern<T>) =>
+        OkAsync(R.filter(purchaseOrders, isMatching(pattern))),
     };
   },
 };
