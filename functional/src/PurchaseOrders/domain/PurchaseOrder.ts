@@ -8,6 +8,7 @@ import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "./LineItem";
 import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
 import { Purchaser } from "./Purchaser";
+import { Reviewer } from "./Reviewer";
 
 export type PurchaseOrder = {
   id: Uuid;
@@ -15,6 +16,7 @@ export type PurchaseOrder = {
   lineItems: NonEmptyArray<LineItem>;
   isSubmitted: boolean;
   purchaser: Purchaser;
+  reviewedBy: Option<Reviewer>;
 };
 
 export type DraftPurchaseOrder = PurchaseOrder & {
@@ -27,6 +29,12 @@ export type PendingPurchaseOrder = PurchaseOrder & {
   isSubmitted: true;
 };
 
+export type ApprovedPurchaseOrder = PurchaseOrder & {
+  poNumber: Some<PurchaseOrderNumber>;
+  isSubmitted: true;
+  reviewedBy: Some<Reviewer>;
+};
+
 export const PurchaseOrder = {
   new: (
     purchaser: Purchaser,
@@ -37,6 +45,7 @@ export const PurchaseOrder = {
     lineItems,
     isSubmitted: false,
     purchaser,
+    reviewedBy: None,
   }),
 
   parse: (s: unknown) => (PurchaseOrder.check(s) ? Ok(s) : Err(new Error())),
@@ -56,5 +65,13 @@ export const PurchaseOrder = {
     ...po,
     poNumber: Some(poNumber),
     isSubmitted: true,
+  }),
+
+  approve: (
+    po: PendingPurchaseOrder,
+    reviewer: Reviewer
+  ): ApprovedPurchaseOrder => ({
+    ...po,
+    reviewedBy: Some(reviewer),
   }),
 };
