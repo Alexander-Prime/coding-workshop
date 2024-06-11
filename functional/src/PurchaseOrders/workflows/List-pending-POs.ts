@@ -1,9 +1,9 @@
 import { ResultAsync } from "neverthrow";
 
 import { PendingPurchaseOrder } from "../domain/PurchaseOrder";
-import { PurchaseOrderRepo } from "../domain/PurchaseOrderRepo";
+import { PurchaseOrderSelector } from "../domain/PurchaseOrderSelector";
 
 export const listPendingPos =
-  ({ PORepo }: { PORepo: PurchaseOrderRepo }) =>
+  ({ POSelector }: { POSelector: PurchaseOrderSelector }) =>
   (): ResultAsync<PendingPurchaseOrder[], Error> =>
-    PORepo.list<PendingPurchaseOrder>({ isSubmitted: true });
+    POSelector.listPending();

@@ -1,10 +1,8 @@
 import { errAsync as ErrAsync, okAsync as OkAsync } from "neverthrow";
 import * as R from "remeda";
-import { P, isMatching } from "ts-pattern";
 
 import { Option } from "../../utilities/option";
 import { MemoryPurchaseOrderDb } from "./MemoryPurchaseOrderDb";
-import { PurchaseOrder } from "./PurchaseOrder";
 import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
 import { PurchaseOrderRepo } from "./PurchaseOrderRepo";
 
@@ -44,8 +42,7 @@ export const MemoryPurchaseOrderRepo = {
           OkAsync
         ),
 
-      list: <T extends PurchaseOrder>(pattern = {} as P.Pattern<T>) =>
-        OkAsync(R.filter(db.purchaseOrders, isMatching(pattern))),
+      list: () => OkAsync(db.purchaseOrders),
     };
   },
 };

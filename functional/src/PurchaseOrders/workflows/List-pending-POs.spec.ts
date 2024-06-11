@@ -4,8 +4,11 @@ import * as R from "remeda";
 import { LineItem } from "../domain/LineItem";
 import { MemoryPurchaseOrderDb } from "../domain/MemoryPurchaseOrderDb";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
+import { MemoryPurchaseOrderSelector } from "../domain/MemoryPurchaseOrderSelector";
 import { PurchaseOrderRepo } from "../domain/PurchaseOrderRepo";
 import { Purchaser } from "../domain/Purchaser";
+import { Reviewer } from "../domain/Reviewer";
+import { approvePO } from "./Approve-PO";
 import { createPO } from "./Create-PO";
 import { listPendingPos } from "./List-pending-POs";
 import { submitPO } from "./Submit-PO";
@@ -27,11 +30,12 @@ describe("List pending POs workflow", () => {
   it("includes all POs in pending status", async () => {
     const db = MemoryPurchaseOrderDb.new();
     const PORepo = MemoryPurchaseOrderRepo.new(db);
+    const POSelector = MemoryPurchaseOrderSelector.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(ids.map(submitPO({ PORepo })));
 
-    const results = (await listPendingPos({ PORepo })())._unsafeUnwrap();
+    const results = (await listPendingPos({ POSelector })())._unsafeUnwrap();
 
     expect(results).toHaveLength(5);
   });
@@ -39,27 +43,29 @@ describe("List pending POs workflow", () => {
   it("excludes POs in draft status", async () => {
     const db = MemoryPurchaseOrderDb.new();
     const PORepo = MemoryPurchaseOrderRepo.new(db);
+    const POSelector = MemoryPurchaseOrderSelector.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(
       R.pipe(ids, R.take(4), R.map(submitPO({ PORepo })))
     );
 
-    const results = (await listPendingPos({ PORepo })())._unsafeUnwrap();
+    const results = (await listPendingPos({ POSelector })())._unsafeUnwrap();
 
     expect(results).toHaveLength(4);
   });
 
-  it.skip("excludes POs in approved status", async () => {
+  it("excludes POs in approved status", async () => {
     const db = MemoryPurchaseOrderDb.new();
     const PORepo = MemoryPurchaseOrderRepo.new(db);
+    const POSelector = MemoryPurchaseOrderSelector.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(ids.map(submitPO({ PORepo })));
 
-    //await approvePO({ PORepo })([ids[0]]);
+    await approvePO({ PORepo })(Reviewer.new(), ids[0]);
 
-    const results = (await listPendingPos({ PORepo })())._unsafeUnwrap();
+    const results = (await listPendingPos({ POSelector })())._unsafeUnwrap();
 
     expect(results).toHaveLength(4);
   });

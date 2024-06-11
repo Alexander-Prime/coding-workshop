@@ -1,4 +1,5 @@
 import { err as Err } from "neverthrow";
+
 import { DomainInvariantViolation } from "../../utilities/error/DomainInvariantViolation";
 import { Some } from "../../utilities/option";
 import { LineItem } from "../domain/LineItem";
