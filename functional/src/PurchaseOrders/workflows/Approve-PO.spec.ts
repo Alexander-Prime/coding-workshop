@@ -2,6 +2,7 @@ import { err as Err } from "neverthrow";
 import { DomainInvariantViolation } from "../../utilities/error/DomainInvariantViolation";
 import { Some } from "../../utilities/option";
 import { LineItem } from "../domain/LineItem";
+import { MemoryPurchaseOrderDb } from "../domain/MemoryPurchaseOrderDb";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
 import { Purchaser } from "../domain/Purchaser";
 import { Reviewer } from "../domain/Reviewer";
@@ -10,7 +11,8 @@ import { createPO } from "./Create-PO";
 import { submitPO } from "./Submit-PO";
 
 const setup = async () => {
-  const PORepo = MemoryPurchaseOrderRepo.new();
+  const db = MemoryPurchaseOrderDb.new();
+  const PORepo = MemoryPurchaseOrderRepo.new(db);
 
   const purchaser = Purchaser.new({ namespace: "syn" });
   const reviewer = Reviewer.new();

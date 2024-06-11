@@ -5,6 +5,7 @@ import { P, match } from "ts-pattern";
 import { None, Option, Some } from "../../utilities/option";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
+import { MemoryPurchaseOrderDb } from "../domain/MemoryPurchaseOrderDb";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
 import { PurchaseOrder } from "../domain/PurchaseOrder";
 import { Purchaser } from "../domain/Purchaser";
@@ -12,12 +13,14 @@ import { createPO } from "./Create-PO";
 
 describe("Create PO Workflow", () => {
   it("is callable", () => {
-    const repo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const repo = MemoryPurchaseOrderRepo.new(db);
     createPO({ PORepo: repo });
   });
 
   it("returns a uuid", async () => {
-    const repo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const repo = MemoryPurchaseOrderRepo.new(db);
     const purchaser = Purchaser.new({ namespace: "syn" });
     const poResult = await createPO({ PORepo: repo })(purchaser, [
       LineItem.mock(),
@@ -29,7 +32,8 @@ describe("Create PO Workflow", () => {
   });
 
   it("saves a purchase order to a repository", async () => {
-    const repo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const repo = MemoryPurchaseOrderRepo.new(db);
     const purchaser = Purchaser.new({ namespace: "syn" });
     const result = await createPO({ PORepo: repo })(purchaser, [
       LineItem.mock(),
@@ -50,7 +54,8 @@ describe("Create PO Workflow", () => {
   });
 
   it("creates purchase orders without PO numbers", async () => {
-    const repo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const repo = MemoryPurchaseOrderRepo.new(db);
     const purchaser = Purchaser.new({ namespace: "syn" });
 
     const ids = await ResultAsync.combine([

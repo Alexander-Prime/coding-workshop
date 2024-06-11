@@ -1,8 +1,9 @@
 import { ok as Ok, ResultAsync } from "neverthrow";
+import * as R from "remeda";
 
-import { reverse } from "remeda";
 import { Uuid } from "../../utilities/uuid";
 import { LineItem } from "../domain/LineItem";
+import { MemoryPurchaseOrderDb } from "../domain/MemoryPurchaseOrderDb";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
 import { Purchaser } from "../domain/Purchaser";
 import { createPO } from "./Create-PO";
@@ -10,11 +11,12 @@ import { submitPO } from "./Submit-PO";
 
 describe("Submit PO workflow", () => {
   it("assigns purchase order numbers sequentially", async () => {
-    const PORepo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const PORepo = MemoryPurchaseOrderRepo.new(db);
 
     const purchaser = Purchaser.new({ namespace: "syn" });
 
-    const ids = reverse(
+    const ids = R.reverse(
       await ResultAsync.combine([
         createPO({ PORepo })(purchaser, [LineItem.mock()]),
         createPO({ PORepo })(purchaser, [LineItem.mock()]),
@@ -40,7 +42,8 @@ describe("Submit PO workflow", () => {
   });
 
   it("fails if the purchase order has already been submitted", async () => {
-    const PORepo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const PORepo = MemoryPurchaseOrderRepo.new(db);
     const purchaser = Purchaser.new({ namespace: "syn" });
 
     const id = (

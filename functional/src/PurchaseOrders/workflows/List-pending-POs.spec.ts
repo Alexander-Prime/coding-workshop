@@ -2,6 +2,7 @@ import { ResultAsync } from "neverthrow";
 import * as R from "remeda";
 
 import { LineItem } from "../domain/LineItem";
+import { MemoryPurchaseOrderDb } from "../domain/MemoryPurchaseOrderDb";
 import { MemoryPurchaseOrderRepo } from "../domain/MemoryPurchaseOrderRepo";
 import { PurchaseOrderRepo } from "../domain/PurchaseOrderRepo";
 import { Purchaser } from "../domain/Purchaser";
@@ -24,7 +25,8 @@ const generatePurchaseOrders = async (
 
 describe("List pending POs workflow", () => {
   it("includes all POs in pending status", async () => {
-    const PORepo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const PORepo = MemoryPurchaseOrderRepo.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(ids.map(submitPO({ PORepo })));
@@ -35,7 +37,8 @@ describe("List pending POs workflow", () => {
   });
 
   it("excludes POs in draft status", async () => {
-    const PORepo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const PORepo = MemoryPurchaseOrderRepo.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(
@@ -48,7 +51,8 @@ describe("List pending POs workflow", () => {
   });
 
   it.skip("excludes POs in approved status", async () => {
-    const PORepo = MemoryPurchaseOrderRepo.new();
+    const db = MemoryPurchaseOrderDb.new();
+    const PORepo = MemoryPurchaseOrderRepo.new(db);
     const ids = await generatePurchaseOrders(PORepo, 5);
 
     await ResultAsync.combine(ids.map(submitPO({ PORepo })));

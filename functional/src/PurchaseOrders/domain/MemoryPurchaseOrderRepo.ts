@@ -3,13 +3,13 @@ import * as R from "remeda";
 import { P, isMatching } from "ts-pattern";
 
 import { Option } from "../../utilities/option";
+import { MemoryPurchaseOrderDb } from "./MemoryPurchaseOrderDb";
 import { PurchaseOrder } from "./PurchaseOrder";
 import { PurchaseOrderNumber } from "./PurchaseOrderNumber";
 import { PurchaseOrderRepo } from "./PurchaseOrderRepo";
 
 export const MemoryPurchaseOrderRepo = {
-  new: (): PurchaseOrderRepo => {
-    let purchaseOrders: PurchaseOrder[] = [];
+  new: (db: MemoryPurchaseOrderDb): PurchaseOrderRepo => {
     const counters: Record<string, number> = {};
 
     return {
@@ -31,21 +31,21 @@ export const MemoryPurchaseOrderRepo = {
       },
 
       save: (po) => {
-        purchaseOrders = purchaseOrders.filter(({ id }) => id !== po.id);
-        purchaseOrders.push(po);
+        db.purchaseOrders = db.purchaseOrders.filter(({ id }) => id !== po.id);
+        db.purchaseOrders.push(po);
         return OkAsync(null);
       },
 
       fetch: (id) =>
         R.pipe(
-          purchaseOrders,
+          db.purchaseOrders,
           R.find(R.hasSubObject({ id })),
           Option.nonNull,
           OkAsync
         ),
 
       list: <T extends PurchaseOrder>(pattern = {} as P.Pattern<T>) =>
-        OkAsync(R.filter(purchaseOrders, isMatching(pattern))),
+        OkAsync(R.filter(db.purchaseOrders, isMatching(pattern))),
     };
   },
 };
